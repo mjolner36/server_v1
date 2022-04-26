@@ -1,6 +1,7 @@
 package com.template
 
 import ConnectionDetector
+import android.R.attr.password
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -8,17 +9,17 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.android.volley.Request
 import com.android.volley.Response
-import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import java.lang.Exception
-import java.net.HttpURLConnection
-import java.net.URL
+import org.json.JSONException
+import org.json.JSONObject
 import java.util.*
 
 
@@ -58,8 +59,7 @@ class LoadingActivity : AppCompatActivity() {
                             getRequestToURL(makeURl(domenFromFirebase))
                         }
                     }
-                }
-                else actionWithLink(link)
+                } else actionWithLink(link)
             }
         }
 
@@ -123,8 +123,8 @@ class LoadingActivity : AppCompatActivity() {
     private fun getRequestToURL(urlStr: String) {
         Log.d("debugApp", "getRequestToURL")
         val queue = Volley.newRequestQueue(this)
-        val jsonObjectRequest = object : JsonObjectRequest(
-            Method.GET, urlStr, null,
+        val request: StringRequest = object : StringRequest(
+            Method.GET, urlStr,
             Response.Listener { response ->
                 if (response != null && response.toString() != "") {
                     Log.d("debugApp", "response link:${response}")
@@ -136,7 +136,7 @@ class LoadingActivity : AppCompatActivity() {
             Response.ErrorListener { error ->
                 actionWithLink("")
                 pref.edit().putString(save_link, "error").apply()
-                Log.d("debugApp", "error response link:${error}")
+//                Log.d("debugApp", "error response link:${error}")
                 error.printStackTrace()
             }
         ) {
@@ -146,6 +146,6 @@ class LoadingActivity : AppCompatActivity() {
                 return headers
             }
         }
-        queue.add(jsonObjectRequest)
+        queue.add(request)
     }
 }
